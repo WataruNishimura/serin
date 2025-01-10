@@ -1,7 +1,7 @@
 import { db } from "@/app/_db/client";
 import { windowTable } from "@/database/schema";
 import { count } from "drizzle-orm";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import * as v from "valibot";
 
 const QueryStringSchema = v.object({
@@ -21,6 +21,14 @@ const QueryStringSchema = v.object({
   ),
 });
 
+// シンプルな処理のためテストを書く必要がないと考える
+// drizzle-ormのレイヤーで実行が保証されていると考え、実行する
+
+/**
+ *
+ * @param req
+ * @returns
+ */
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
 
@@ -58,17 +66,25 @@ export async function GET(req: NextRequest) {
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error(error.message);
-      return {
-        status: 500,
-        error: error.message,
-      };
+      return NextResponse.json(
+        {
+          error: error.message,
+        },
+        {
+          status: 500,
+        }
+      );
     }
 
     console.error(`UNKOWN ERROR: ${JSON.stringify(error)}`);
 
-    return {
-      status: 500,
-      error: "An unknown error occurred",
-    };
+    return NextResponse.json(
+      {
+        error: "An unknown error occurred",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }
